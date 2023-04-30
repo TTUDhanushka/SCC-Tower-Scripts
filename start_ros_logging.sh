@@ -5,6 +5,9 @@ gnome-terminal -- bash ros_init.sh
 
 sleep 5s
 
+# Start Omega stereo camera.
+gnome-terminal -- bash start_stereo_camera.sh
+
 #
 # All the rosnodes should be launched and running before this line.
 #
