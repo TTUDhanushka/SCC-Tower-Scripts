@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+source /opt/ros/noetic/setup.bash
+
+rostopic list -v
+
+DIR="~/bagfiles"
+
+if [ -d"$DIR" ]; then
+    echo "Log directory exists."
+else
+    echo "Creating a new log directory."
+    mkdir ~/bagfiles
+fi
+
+cd ~/bagfiles
+
+echo "Starting rosbag recording for all the published topics."
+
+echo "Use CTRL + C to stop recording."
+
+rosbag record -a
