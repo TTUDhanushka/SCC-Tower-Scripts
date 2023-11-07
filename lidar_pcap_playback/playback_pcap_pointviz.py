@@ -7,10 +7,12 @@ Description: Play back pcap LiDAR point clouds using Point Viz library.
 import os
 from ouster import pcap, client, viz
 import numpy as np
+import time
 
 # Point cloud data paths.
 pcap_data_path = '/home/dhanushka/LiDAR_data_from_Aker/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.pcap'
 metadata_path = '/home/dhanushka/LiDAR_data_from_Aker/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.json'
+
 
 def vizualizer(meta, scans):
     point_viz = viz.PointViz("Viz")
@@ -43,60 +45,93 @@ def vizualizer(meta, scans):
     img_screen_height = 0.4
     img_screen_length = img_screen_height / image_aspect
 
-    scan = next(scans)
+    # print(f"Number of scans {sum(1 for item in scans)}")
+    cloud_axis = None
 
-    ranges = scan.field(client.ChanField.RANGE)
-    ranges = client.destagger(meta, ranges)
-    ranges = np.divide(ranges, np.amax(ranges), dtype=np.float32)
+    for scan in scans:
+    # scan = next(scans)
 
-    print(f"Ranges {ranges}")
+        if cloud_axis is not None:
+            point_viz.remove(cloud_axis)
 
-    signal = scan.field(client.ChanField.REFLECTIVITY)
-    signal = client.destagger(meta, signal)
-    signal = np.divide(signal, np.amax(signal), dtype=np.float32)
+        ranges = scan.field(client.ChanField.RANGE)
+        ranges = client.destagger(meta, ranges)
+        ranges = np.divide(ranges, np.amax(ranges), dtype=np.float32)
 
-    range_img = viz.Image()
-    range_img.set_image(ranges)
-    range_img.set_position(-img_screen_length / 2, img_screen_length / 2, 1- img_screen_height, 1)
+        print(f"Ranges {ranges}")
 
-    # point_viz.add(range_img)
+        signal = scan.field(client.ChanField.REFLECTIVITY)
+        signal = client.destagger(meta, signal)
+        signal = np.divide(signal, np.amax(signal), dtype=np.float32)
 
-    signal_img = viz.Image()
-    signal_img.set_image(signal)
+        range_img = viz.Image()
+        range_img.set_image(ranges)
+        range_img.set_position(-img_screen_length / 2, img_screen_length / 2, 1 - img_screen_height, 1)
 
-    image_aspect = (meta.beam_altitude_angles[0] - meta.beam_altitude_angles[-1]) / 360.0
-    img_screen_height = 0.4
-    img_screen_length = img_screen_height / image_aspect
+        # point_viz.add(range_img)
 
-    signal_img.set_position(-img_screen_length / 2, img_screen_length / 2, - 1, -1 + img_screen_height)
+        signal_img = viz.Image()
+        signal_img.set_image(signal)
 
-    # point_viz.add(signal_img)
+        image_aspect = (meta.beam_altitude_angles[0] - meta.beam_altitude_angles[-1]) / 360.0
+        img_screen_height = 0.4
+        img_screen_length = img_screen_height / image_aspect
 
-    range_label = viz.Label(str(client.ChanField.RANGE), 0.5,0,align_top=True)
-    range_label.set_scale(1)
-    # point_viz.add(range_label)
+        signal_img.set_position(-img_screen_length / 2, img_screen_length / 2, - 1, -1 + img_screen_height)
 
-    signal_label = viz.Label(str(client.ChanField.REFLECTIVITY), 0.5, 1 - img_screen_height / 2, align_top=False)
-    signal_label.set_scale(1)
-    # point_viz.add(signal_label)
+        # point_viz.add(signal_img)
 
-    # cloud_scan = viz.Cloud(meta)
-    # cloud_scan.set_range(scan.field(client.ChanField.RANGE))
-    # cloud_scan.set_key(signal)
+        range_label = viz.Label(str(client.ChanField.RANGE), 0.5,0,align_top=True)
+        range_label.set_scale(1)
+        # point_viz.add(range_label)
 
-    # point_viz.add(cloud_scan)
+        signal_label = viz.Label(str(client.ChanField.REFLECTIVITY), 0.5, 1 - img_screen_height / 2, align_top=False)
+        signal_label.set_scale(1)
+        # point_viz.add(signal_label)
 
-    xyz_lut = client.XYZLut(meta)
-    xyz = xyz_lut(scan.field(client.ChanField.RANGE))
-    cloud_xyz = viz.Cloud(xyz.shape[0] * xyz.shape[1])
-    cloud_xyz.set_xyz(np.reshape(xyz, (-1, 3)))
-    cloud_xyz.set_key(signal.ravel())
+        # cloud_scan = viz.Cloud(meta)
+        # cloud_scan.set_range(scan.field(client.ChanField.RANGE))
+        # cloud_scan.set_key(signal)
 
-    point_viz.add(cloud_xyz) 
+        # point_viz.add(cloud_scan)
 
-    # visualize
-    point_viz.update()
-    point_viz.run()
+        xyz_lut = client.XYZLut(meta)
+        xyz = xyz_lut(scan.field(client.ChanField.RANGE))
+        cloud_xyz = viz.Cloud(xyz.shape[0] * xyz.shape[1])
+        cloud_xyz.set_xyz(np.reshape(xyz, (-1, 3)))
+        cloud_xyz.set_key(signal.ravel())
+
+        point_viz.add(cloud_xyz)
+
+        x_ = np.array([1, 0, 0]).reshape(-1, 1)
+        y_ = np.array([0, 1, 0]).reshape(-1, 1)
+        z_ = np.array([0, 0, 1]).reshape(-1, 1)
+
+        axis_n = 100
+        line = np.linspace(0, 1, axis_n).reshape(1, -1)
+
+        axis_points = np.hstack((x_ @ line, y_ @ line, z_ @ line)).transpose()
+
+        axis_color_mask = np.vstack((
+                                    np.full((axis_n, 4), [1, 0.1, 0.1, 1]),
+                                    np.full((axis_n, 4), [0.1, 1, 0.1, 1]),
+                                    np.full((axis_n, 4), [0.1, 0.1, 1, 1])
+                                    ))
+
+        cloud_axis = viz.Cloud(axis_points.shape[0])
+        cloud_axis.set_xyz(axis_points)
+        cloud_axis.set_key(np.full(axis_points.shape[0], 0.5))
+        cloud_axis.set_mask(axis_color_mask)
+        cloud_axis.set_point_size(3)
+        point_viz.add(cloud_axis)
+
+
+        # visualize
+        point_viz.update()
+        point_viz.run()
+
+        time.sleep(0.1)
+
 
 def main():
     # Getting data sources
