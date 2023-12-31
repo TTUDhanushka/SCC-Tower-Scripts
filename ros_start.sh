@@ -9,4 +9,3 @@ echo $ROS_PACKAGE_PATH
 echo "ROS Starting!"
 
 roscore
-
