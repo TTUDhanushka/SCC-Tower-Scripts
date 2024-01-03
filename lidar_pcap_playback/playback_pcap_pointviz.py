@@ -10,9 +10,13 @@ import numpy as np
 import time
 
 # Point cloud data paths.
-pcap_data_path = '/home/dhanushka/LiDAR_data_from_Aker/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.pcap'
-metadata_path = '/home/dhanushka/LiDAR_data_from_Aker/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.json'
+# If Ubuntu desktop PC in use
+# pcap_data_path = '/home/dhanushka/LiDAR_data_from_Aker/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.pcap'
+# metadata_path = '/home/dhanushka/LiDAR_data_from_Aker/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.json'
 
+# If SCC Tower in use
+pcap_data_path = '/home/scctower1/Data/LiDAR Recordings/Aker 25 Apr/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.pcap'
+metadata_path = '/home/scctower1/Data/LiDAR Recordings/Aker 25 Apr/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.json'
 
 def vizualizer(meta, scans):
     point_viz = viz.PointViz("Viz")
