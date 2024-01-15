@@ -11,12 +11,12 @@ import time
 
 # Point cloud data paths.
 # If Ubuntu desktop PC in use
-# pcap_data_path = '/home/dhanushka/LiDAR_data_from_Aker/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.pcap'
-# metadata_path = '/home/dhanushka/LiDAR_data_from_Aker/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.json'
+pcap_data_path = '/home/dhanushka/LiDAR_data_from_Aker/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.pcap'
+metadata_path = '/home/dhanushka/LiDAR_data_from_Aker/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.json'
 
 # If SCC Tower in use
-pcap_data_path = '/home/scctower1/Data/LiDAR Recordings/Aker 25 Apr/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.pcap'
-metadata_path = '/home/scctower1/Data/LiDAR Recordings/Aker 25 Apr/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.json'
+# pcap_data_path = '/home/scctower1/Data/LiDAR Recordings/Aker 25 Apr/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.pcap'
+# metadata_path = '/home/scctower1/Data/LiDAR Recordings/Aker 25 Apr/2023-04-25-12-05-54_OS-2-32-992205000870-512x10.json'
 
 def vizualizer(meta, scans):
     point_viz = viz.PointViz("Viz")
@@ -55,8 +55,8 @@ def vizualizer(meta, scans):
     for scan in scans:
     # scan = next(scans)
 
-        if cloud_axis is not None:
-            point_viz.remove(cloud_axis)
+        # if cloud_axis is not None:
+        point_viz.pop_frame_buffer_handler()
 
         ranges = scan.field(client.ChanField.RANGE)
         ranges = client.destagger(meta, ranges)
