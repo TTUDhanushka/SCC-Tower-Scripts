@@ -10,3 +10,16 @@
 ```shell
 bash start_ros_logging.sh
 ```
+
+Start cameras with
+```shell
+bash stream_ip_cameras.sh
+```
+
+#### Start web video server for online monitoring
+```shell
+rosrun web_video_server web_video_server
+```
+From a remote computer, ip address 37.157.77.203:8080 gives the video stream.
+
+* Roslaunch file to be tested.
