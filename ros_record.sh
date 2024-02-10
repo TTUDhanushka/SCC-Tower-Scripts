@@ -19,4 +19,6 @@ echo "Starting rosbag recording for all the published topics."
 
 echo "Use CTRL + C to stop recording."
 
-rosbag record -a
+# rosbag record -a
+rosbag record /sbg/imu_data /sbg/ekf_quat --split --duration=1h  /chatter
+
